@@ -9,3 +9,4 @@ __pycache__
 .env.production.local
 .env.development
 .env.test
+iris.db
