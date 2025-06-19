@@ -138,8 +138,7 @@ Iris/
 │   ├── chatbot_test.py        # Chatbot testing utilities
 │   ├── routers/
 │   │   ├── chatbot.py         # Chatbot API endpoints
-│   │   ├── documents.py       # Document management endpoints
-│   │   └── component.tsx      # Frontend components
+│   │   └── documents.py      # Document management endpoints
 │   ├── schemas/
 │   │   ├── chat.py           # Chat-related Pydantic models
 │   │   ├── document.py       # Document Pydantic models
