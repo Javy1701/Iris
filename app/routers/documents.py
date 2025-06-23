@@ -3,12 +3,10 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..services.document_service import DocumentService
 from ..schemas.document import DocumentResponse, DocumentList
-from ..utils.auth import get_current_admin_user
 
 router = APIRouter(
     prefix="/documents",
-    tags=["documents"],
-    dependencies=[Depends(get_current_admin_user)]
+    tags=["documents"]
 )
 
 @router.post("/", response_model=DocumentResponse)
