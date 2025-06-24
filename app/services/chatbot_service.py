@@ -227,7 +227,8 @@ def set_system_prompt(new_prompt: str):
         MessagesPlaceholder(variable_name="agent_scratchpad"),
     ])
     agent = create_openai_tools_agent(llm, tools, AGENT_PROMPT)
-    agent_executor.agent = agent
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)  # Set verbose=True for debugging
+
 
 # Initialize with the default prompt
 AGENT_PROMPT = ChatPromptTemplate.from_messages([
