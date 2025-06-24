@@ -22,13 +22,14 @@ class PromptRequest(BaseModel):
 
 @router.post("/", response_model=ChatResponse)
 async def chat(request: ChatRequest):
+    print("request:", request)
     """Process a chat message and return a response."""
     try:
         # Initialize chatbot for this user
-        chatbot = Iris({"user_id": request.user_id})
+        chatbot = Iris({"user_id": request.session_id})
         
         # Process message with chatbot
-        response = await chatbot.chat(request.message)
+        response = await chatbot.chat(request.query)
         
         return ChatResponse(response=response)
         

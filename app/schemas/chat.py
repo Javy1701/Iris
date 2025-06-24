@@ -16,8 +16,8 @@ class ChatHistory(BaseModel):
 
 class ChatRequest(BaseModel):
     """Schema for chat request."""
-    message: str = Field(..., description="User's message")
-    user_id: str = Field(..., description="ID of the user")
+    query: str = Field(..., description="User's message")
+    session_id: str = Field(..., description="ID of the user")
 
 class ChatResponse(BaseModel):
     """Schema for chat response."""
