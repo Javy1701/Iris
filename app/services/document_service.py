@@ -13,17 +13,39 @@ from pinecone import Pinecone as PineconeClient, ServerlessSpec  # Renamed to av
 from ..database import Document
 from ..config import get_settings
 from ..utils.encryption import encrypt_filename
+import glob
 
 settings = get_settings()
 
 # Instantiate a Pinecone client
 # Note: Using PineconeClient to avoid naming conflict with the pinecone module
 pc = PineconeClient(api_key=settings.PINECONE_API_KEY)
+#
+# # Check if the index exists and create it if it doesn't
+# if settings.PINECONE_INDEX_NAME not in pc.list_indexes().names():
+#     pc.create_index(
+#         name=settings.PINECONE_INDEX_NAME,
+#         dimension=1536,  # Dimensionality of text-embedding-ada-002
+#         metric='dotproduct',
+#         spec=ServerlessSpec(
+#             cloud='aws',
+#             region='us-east-1'
+#         )
+#     )
 
-# Check if the index exists and create it if it doesn't
-if settings.PINECONE_INDEX_NAME not in pc.list_indexes().names():
+# Initialize OpenAI embeddings
+embeddings = OpenAIEmbeddings(
+    model=settings.EMBEDDING_MODEL_NAME
+)
+
+# --- Module-level logic to recreate Pinecone index and upload assets ---
+def recreate_index_and_upload_assets():
+    index_name = settings.PINECONE_INDEX_NAME
+    namespace = settings.PINECONE_NAMESPACE
+    if index_name in pc.list_indexes().names():
+        pc.delete_index(index_name)
     pc.create_index(
-        name=settings.PINECONE_INDEX_NAME,
+        name=index_name,
         dimension=1536,  # Dimensionality of text-embedding-ada-002
         metric='dotproduct',
         spec=ServerlessSpec(
@@ -31,11 +53,49 @@ if settings.PINECONE_INDEX_NAME not in pc.list_indexes().names():
             region='us-east-1'
         )
     )
+    pinecone_index = pc.Index(index_name)
 
-# Initialize OpenAI embeddings
-embeddings = OpenAIEmbeddings(
-    model=settings.EMBEDDING_MODEL_NAME
-)
+    supported_types = {"pdf", "txt", "csv", "docx"}
+    assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'assets')
+    assets_dir = os.path.abspath(assets_dir)
+    files = glob.glob(os.path.join(assets_dir, '*'))
+    for file_path in files:
+        ext = file_path.split('.')[-1].lower()
+        if ext in supported_types:
+            try:
+                if ext == "pdf":
+                    loader = PyPDFLoader(file_path)
+                elif ext == "txt":
+                    loader = TextLoader(file_path)
+                elif ext == "csv":
+                    loader = CSVLoader(file_path)
+                elif ext == "docx":
+                    loader = Docx2txtLoader(file_path)
+                else:
+                    continue
+                docs = loader.load()
+                for doc in docs:
+                    doc.metadata['document_id'] = os.path.basename(file_path)
+                text_splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=1000,
+                    chunk_overlap=200
+                )
+                chunks = text_splitter.split_documents(docs)
+                vector_store = PineconeVectorStore(
+                    index_name=index_name,
+                    embedding=embeddings,
+                    namespace=namespace
+                )
+                batch_size = 100
+                for i in range(0, len(chunks), batch_size):
+                    batch_chunks = chunks[i:i + batch_size]
+                    print(f"Uploading {os.path.basename(file_path)} batch {i // batch_size + 1}/{(len(chunks) - 1) // batch_size + 1}...")
+                    vector_store.add_documents(batch_chunks)
+            except Exception as e:
+                print(f"Failed to process {file_path}: {e}")
+
+# Run on import
+# recreate_index_and_upload_assets()
 
 
 class DocumentService:

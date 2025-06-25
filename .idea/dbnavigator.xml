@@ -31,7 +31,9 @@
     <last-used-providers />
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
-    <open-files />
+    <open-files>
+      <object connection-id="c2edb1ea-3a82-414e-aeaa-f067756f9297" object-ref="schemas/main/tables/chat_history" />
+    </open-files>
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
     <connection id="c2edb1ea-3a82-414e-aeaa-f067756f9297" />

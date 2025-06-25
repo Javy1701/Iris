@@ -13,6 +13,7 @@ app = FastAPI(
 )
 
 origins = [
+    "null",
     "https://thelandofcolor.com",
 ]
 
