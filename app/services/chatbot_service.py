@@ -122,7 +122,6 @@ llm = ChatOpenAI(
 )
 
 _current_system_prompt = get_system_prompt()
-print(_current_system_prompt)
 
 def set_system_prompt(new_prompt: str):
     global _current_system_prompt, AGENT_PROMPT, agent, agent_executor

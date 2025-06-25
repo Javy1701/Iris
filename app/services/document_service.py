@@ -95,7 +95,7 @@ def recreate_index_and_upload_assets():
                 print(f"Failed to process {file_path}: {e}")
 
 # Run on import
-# recreate_index_and_upload_assets()
+recreate_index_and_upload_assets()
 
 
 class DocumentService:
