@@ -144,7 +144,7 @@ def query_database(query: str) -> str:
     - Use this tool for any questions about color theory. Specifically, use it to find the rules for hue families, LCh degree ranges, Munsell notations, and their defined warm and cool ranges. This is the definitive source of truth.
     """
     try:
-        csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'assets', 'Iris Chatbot Data 7_31_2025 - Sheet1.csv')
+        csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'uploads', 'Iris Chatbot Data 7_31_2025 - Sheet1.csv')
         df = pd.read_csv(csv_path)
         # Clean column names to prevent issues with extra spaces
         df.columns = df.columns.str.strip()
@@ -213,7 +213,8 @@ def find_harmonious_colors(color_name: str) -> str:
     Generates harmonious color combinations for a given color name using Munsell Hue, Value, and Chroma.
     """
     try:
-        df = pd.read_csv('Iris Chatbot Data 7_31_2025 - Sheet1.csv')
+        csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'uploads', 'Iris Chatbot Data 7_31_2025 - Sheet1.csv')
+        df = pd.read_csv(csv_path)
         df.columns = df.columns.str.strip()
 
         target_color = df[df['Color Name'].str.lower() == color_name.lower()]
@@ -264,7 +265,8 @@ def find_similar_colors_by_dna(color_name: str) -> str:
     Returns 6+ colors with a scientific rationale.
     """
     try:
-        df = pd.read_csv('Iris Chatbot Data 7_31_2025 - Sheet1.csv')
+        csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'uploads', 'Iris Chatbot Data 7_31_2025 - Sheet1.csv')
+        df = pd.read_csv(csv_path)
         df.columns = df.columns.str.strip()
 
         target_color = df[df['Color Name'].str.lower() == color_name.lower()]
