@@ -21,8 +21,9 @@ class Settings(BaseSettings):
     # Pinecone
     PINECONE_INDEX_NAME: str = os.getenv("PINECONE_INDEX_NAME")
     PINECONE_DIMENSION: int = 1536  # OpenAI embedding dimension
-    PINECONE_NAMESPACE: str = os.getenv("PINECONE_NAMESPACE")
-    
+    PINECONE_NAMESPACE_COLOR_LOGIC: str = os.getenv("PINECONE_NAMESPACE_COLOR_LOGIC")
+    PINECONE_NAMESPACE_GENERAL: str = os.getenv("PINECONE_NAMESPACE_GENERAL")
+
     # File Upload
     MAX_UPLOAD_SIZE: int = 100 * 1024 * 1024  # 10MB
     ALLOWED_EXTENSIONS: set = {"pdf", "csv", "docx", "txt"}

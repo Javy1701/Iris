@@ -14,6 +14,7 @@ from ..database import Document
 from ..config import get_settings
 from ..utils.encryption import encrypt_filename
 import glob
+import json
 
 settings = get_settings()
 
@@ -25,7 +26,7 @@ pc = PineconeClient(api_key=settings.PINECONE_API_KEY)
 # if settings.PINECONE_INDEX_NAME not in pc.list_indexes().names():
 #     pc.create_index(
 #         name=settings.PINECONE_INDEX_NAME,
-#         dimension=1536,  # Dimensionality of text-embedding-ada-002
+#         dimension=1536,# Dimensionality of text-embedding-ada-002
 #         metric='dotproduct',
 #         spec=ServerlessSpec(
 #             cloud='aws',
@@ -41,7 +42,7 @@ embeddings = OpenAIEmbeddings(
 # --- Module-level logic to recreate Pinecone index and upload assets ---
 def recreate_index_and_upload_assets():
     index_name = settings.PINECONE_INDEX_NAME
-    namespace = settings.PINECONE_NAMESPACE
+    namespace = settings.PINECONE_NAMESPACE_GENERAL
     if index_name in pc.list_indexes().names():
         pc.delete_index(index_name)
     pc.create_index(
@@ -56,7 +57,7 @@ def recreate_index_and_upload_assets():
     pinecone_index = pc.Index(index_name)
 
     supported_types = {"pdf", "txt", "csv", "docx"}
-    assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'assets')
+    assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'uploads')
     assets_dir = os.path.abspath(assets_dir)
     files = glob.glob(os.path.join(assets_dir, '*'))
     for file_path in files:
@@ -94,9 +95,45 @@ def recreate_index_and_upload_assets():
             except Exception as e:
                 print(f"Failed to process {file_path}: {e}")
 
-# Run on import
-recreate_index_and_upload_assets()
 
+def ingest_color_logic():
+    """
+    Reads the color wheel logic from a JSON file in the parent directory,
+    and stores it in a dedicated Pinecone namespace for later retrieval.
+    """
+    index_name = settings.PINECONE_INDEX_NAME
+    namespace = settings.PINECONE_NAMESPACE_COLOR_LOGIC
+    try:
+        # Build an absolute path to the file in the parent directory
+        file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'uploads', 'Color_Strategist_Wheel_Defined.json')
+        
+        with open(file_path, 'r', encoding='utf-8') as f:
+            logic_data = json.load(f)
+            full_logic_string = json.dumps(logic_data)
+
+        # Each hue family becomes a separate, searchable document
+        documents = [json.dumps(family) for family in logic_data]
+        
+        print(f"Ingesting {len(documents)} documents into Pinecone index '{index_name}' in namespace '{namespace}'...")
+
+        # This creates the embeddings and stores them in Pinecone
+        PineconeVectorStore.from_texts(
+            texts=[full_logic_string],
+            embedding=embeddings,
+            index_name=index_name,
+            namespace=namespace
+        )
+        
+        print("✅ Ingestion complete!")
+
+    except FileNotFoundError:
+        print(f"❌ ERROR: 'color_wheel_logic.json' not found at the expected path: {file_path}")
+    except Exception as e:
+        print(f"❌ An error occurred during ingestion: {e}")
+
+# Run on import
+# recreate_index_and_upload_assets()
+# ingest_color_logic()
 
 class DocumentService:
     def __init__(self, db: Session):
@@ -114,7 +151,7 @@ class DocumentService:
         elif file_type == "txt":
             return TextLoader(file_path)
         elif file_type == "csv":
-            return CSVLoader(file_path)
+            return CSVLoader(file_path) 
         elif file_type == "docx":
             return Docx2txtLoader(file_path)
         else:

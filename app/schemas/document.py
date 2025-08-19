@@ -27,4 +27,4 @@ class DocumentResponse(DocumentInDB):
 
 class DocumentList(BaseModel):
     documents: list[DocumentResponse]
-    total: int 
+    total: int
