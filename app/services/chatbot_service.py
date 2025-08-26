@@ -60,7 +60,10 @@ color_logic_retriever = PineconeVectorStore(
     index_name=settings.PINECONE_INDEX_NAME, 
     embedding=embed, 
     namespace=settings.PINECONE_NAMESPACE_COLOR_LOGIC
-).as_retriever()
+).as_retriever(
+    search_type="similarity_score_threshold",
+    search_kwargs={"k": 4, "score_threshold": 0.8}
+)
 
 
 def get_system_prompt() -> str:
@@ -360,11 +363,15 @@ tools = [
     calculate_munsell_hue_range
 ]
 
+# llm = ChatOpenAI(
+#     model=settings.CHAT_OPENAI_MODEL_NAME,
+#     temperature=settings.CHAT_OPENAI_TEMPERATURE,
+# )
+
 llm = ChatOpenAI(
     model=settings.CHAT_OPENAI_MODEL_NAME,
-    temperature=settings.CHAT_OPENAI_TEMPERATURE,
-)
 
+)
 _current_system_prompt = get_system_prompt()
 
 def set_system_prompt(new_prompt: str):
