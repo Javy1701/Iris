@@ -54,7 +54,7 @@ pinecone_vectorstore = PineconeVectorStore(
 )
 vector_database = pinecone_vectorstore.as_retriever(
     search_type="similarity_score_threshold",
-    search_kwargs={"k": 4, "score_threshold": 0.8}
+    search_kwargs={"k": 5, "score_threshold": 0.7}
 )
 color_logic_retriever = PineconeVectorStore(
     index_name=settings.PINECONE_INDEX_NAME, 
@@ -62,7 +62,7 @@ color_logic_retriever = PineconeVectorStore(
     namespace=settings.PINECONE_NAMESPACE_COLOR_LOGIC
 ).as_retriever(
     search_type="similarity_score_threshold",
-    search_kwargs={"k": 4, "score_threshold": 0.8}
+    search_kwargs={"k": 5, "score_threshold": 0.7}
 )
 
 
@@ -357,7 +357,7 @@ tools = [
         func=color_logic_retriever.invoke,
         description="Use this tool for any questions about color theory. Specifically, use it to find the rules for hue families, LCh degree ranges, Munsell notations, and their defined warm and cool ranges. This is the definitive source of truth."
     ),
-    query_database,
+    # query_database,
     find_harmonious_colors,
     find_similar_colors_by_dna,
     calculate_munsell_hue_range
@@ -495,7 +495,7 @@ class Iris:
         return await process_chat(message, self.user_id)
 
     async def get_history(self) -> ChatHistorySchema:
-        memory = await get_user_memory(self.user_id)
+        # memory = await get_user_memory(self.user_id)
         # Your convert_messages_to_schema function can be used here if needed,
         # but for simplicity, we'll just pull from the DB model.
         session = Session()
