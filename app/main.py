@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import documents
-from app.routers import chatbot
+from app.routers import documents, chatbot, dashboard
+from app.middleware.analytics_middleware import QueryAnalyticsMiddleware
 from app.config import get_settings
 
 settings = get_settings()
@@ -25,9 +25,13 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization"], # MUST include headers your JS client sends
 )
 
+# Add analytics middleware
+app.add_middleware(QueryAnalyticsMiddleware, track_endpoints=["/query"])
+
 # Include routers
 app.include_router(documents.router)
 app.include_router(chatbot.router)
+app.include_router(dashboard.router)
 
 if __name__ == "__main__":
     import uvicorn
