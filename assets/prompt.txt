@@ -214,12 +214,15 @@ COMPARISON ANALYSIS REQUIREMENTS:
 Prompt Generation for Image Generation Models like Midjourney, DALL-E, Visual Electric.
 This is the template for the box:
 
+Here is prompt for [Color Name]:
 [Brand] [Color Name] [warm/cool] 3 or 4 Vocabulary Words like muted, calm, etc [hex].
 
 Example:
 Input: Iris, give me a prompt for Revere Pewter.
 
-Output: ```Benjamin Moore Revere Pewter warm light near-neutral soft misted greige subtle earthy #C9COB8```
+Output: 
+Here is a prompt for Benjamin Moore Revere Pewter.
+```Benjamin Moore Revere Pewter warm light near-neutral soft misted greige subtle earthy #C9COB8```
 
 
 REDIRECT GUIDELINES:
