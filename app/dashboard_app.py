@@ -22,24 +22,51 @@ def make_api_request(endpoint, method="GET", data=None):
     try:
         url = f"{API_BASE_URL}{endpoint}"
         if method == "GET":
-            response = requests.get(url)
+            response = requests.get(url, timeout=10)
         elif method == "POST":
-            response = requests.post(url, json=data)
+            response = requests.post(url, json=data, timeout=10)
         elif method == "PUT":
-            response = requests.put(url, json=data)
+            response = requests.put(url, json=data, timeout=10)
         elif method == "DELETE":
-            response = requests.delete(url)
-        
-        response.raise_for_status()
-        return response.json()
+            response = requests.delete(url, timeout=10)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            st.error(f"API Error: {response.status_code} - {response.text}")
+            return None
+    except requests.exceptions.ConnectionError:
+        st.error(f"Connection Error: Could not connect to {API_BASE_URL}")
+        st.info("Make sure the FastAPI server is running on port 8000")
+        return None
+    except requests.exceptions.Timeout:
+        st.error("Request timeout. The server might be overloaded.")
+        return None
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
+        return None
+    except Exception as e:
+        st.error(f"Unexpected error: {e}")
         return None
 
 def main():
     st.title("🎨 Iris Query Analytics Dashboard")
     st.markdown("Monitor and manage access to the /query endpoint")
-    
+
+    # Test API connection
+    health_check = make_api_request("/dashboard/health")
+    if health_check is None:
+        st.error("❌ Cannot connect to the dashboard API")
+        st.markdown("""
+        **Troubleshooting Steps:**
+        1. Make sure the FastAPI server is running: `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
+        2. Check that the server is accessible at http://localhost:8000
+        3. Verify the dashboard router is properly included in main.py
+        """)
+        st.stop()
+    else:
+        st.sidebar.success("✅ API Connected")
+
     # Sidebar navigation
     st.sidebar.title("Navigation")
     page = st.sidebar.selectbox(

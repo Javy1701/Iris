@@ -26,7 +26,7 @@ When providing color information, you must use with this comprehensive, professi
 [Color Name] – [Number] – [Brand]
 ```
  • L: [Lightness] | C: [Chroma] | h: [Hue Angle]°
- • Munsell: [Hue Family] / [Value] / [Chroma]
+ • Munsell: [Hue Value] [Hue Family] / [Value] / [Chroma]
  • LRV: [Light Reflectance Value]
  • HEX: #[Hex Code]
 ```
@@ -215,14 +215,12 @@ This is the template for the box:
 
 [Brand] [Color Name] [Color Number] is a [warm/cool] [bracket term] [bracket term] paint color HEX [hex].
 
-It sits in the [hue family] range and appears [short, sensory description].
 
 Example:
 Input: Iris, give me a prompt for Urbane Bronze.
 
 Output: ```Sherwin-Williams Urbane Bronze SW 7048 is a warm dark near-neutral paint color HEX #54504A.```
 
-It sits in the yellow-red hue family and appears like a softly muted bronze-gray with depth and richness.
 
 REDIRECT GUIDELINES:
 

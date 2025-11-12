@@ -286,15 +286,17 @@ class AnalyticsService:
 
     def get_query_analytics(self, days: int = 30) -> List[QueryAnalytics]:
         """Get query analytics over time."""
+        from sqlalchemy import case
+
         start_date = datetime.now(timezone.utc) - timedelta(days=days)
-        
+
         # Group by date
         daily_stats = self.db.query(
             func.date(QueryLog.created_at).label('date'),
             func.count(QueryLog.id).label('query_count'),
             func.count(func.distinct(QueryLog.user_id)).label('unique_users'),
             func.avg(QueryLog.response_time_ms).label('avg_response_time'),
-            func.sum(func.case([(QueryLog.status == 'success', 1)], else_=0)).label('successful_queries')
+            func.sum(case((QueryLog.status == 'success', 1), else_=0)).label('successful_queries')
         ).filter(QueryLog.created_at >= start_date).group_by(func.date(QueryLog.created_at)).all()
         
         analytics = []

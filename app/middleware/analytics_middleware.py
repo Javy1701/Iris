@@ -20,9 +20,13 @@ class QueryAnalyticsMiddleware(BaseHTTPMiddleware):
         # Only track specified endpoints
         if not any(request.url.path.startswith(endpoint) for endpoint in self.track_endpoints):
             return await call_next(request)
-        
+
         # Skip tracking for non-POST requests to /query
         if request.url.path.startswith("/query") and request.method != "POST":
+            return await call_next(request)
+
+        # Skip tracking for dashboard endpoints
+        if request.url.path.startswith("/dashboard"):
             return await call_next(request)
         
         start_time = time.time()
